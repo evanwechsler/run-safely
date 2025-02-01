@@ -5,15 +5,15 @@ A TypeScript utility package providing safe error handling patterns and typed fe
 ## Installation
 
 ```bash
-pnpm add your-package-name
+pnpm add run-safely
 ```
 or
 ```bash
-npm install your-package-name
+npm install run-safely
 ```
 or
 ```bash
-yarn add your-package-name
+yarn add run-safely
 ```
 
 
