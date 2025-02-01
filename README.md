@@ -52,10 +52,12 @@ Example usage:
 const [error, data] = await runSafe(fetchSomeData());
 // With a function
 const [error, result] = await runSafe(() => someOperation());
+
 if (error) {
-console.error('Operation failed:', error);
+	console.error('Operation failed:', error);
 } else {
-console.log('Success:', result);
+  console.log('Success:', result);
+}
 ```
 
 ### fetchTyped
@@ -64,9 +66,9 @@ A type-safe fetch utility that validates response data against a Zod schema.
 
 ```typescript
 function fetchTyped<T>(
-url: string,
-schema: z.ZodSchema<T>,
-options?: RequestInit
+	url: string,
+	schema: z.ZodSchema<T>,
+	options?: RequestInit
 ): Promise<SafeResult<T, FetchError<T>>>;
 ```
 
@@ -75,23 +77,25 @@ Example usage:
 
 ```typescript
 import { z } from 'zod';
+
 const userSchema = z.object({
-id: z.number(),
-name: z.string(),
+	id: z.number(),
+	name: z.string(),
 });
+
 const [error, user] = await fetchTyped('/api/user/1', userSchema);
 if (error) {
-switch (error.item.type) {
-case 'fetch-threw':
-console.error('Network error:', error.item.error);
-return;
-case 'response-not-ok':
-console.error('HTTP error:', error.item.response.status);
-return;
-case 'parse-failed':
-console.error('Invalid response data:', error.item.error);
-return;
-}
+	switch (error.item.type) {
+		case 'fetch-threw':
+			console.error('Network error:', error.item.error);
+			return;
+		case 'response-not-ok':
+			console.error('HTTP error:', error.item.response.status);
+			return;
+		case 'parse-failed':
+			console.error('Invalid response data:', error.item.error);
+			return;
+	}
 }
 
 console.log('User data:', user);
@@ -104,8 +108,8 @@ A type for representing the result of server actions with proper typing for succ
 
 ```typescript
 type ServerActionResult<T> =
-| { success: true; error?: undefined; data: T }
-| { success: false; error: string; data?: undefined };
+	| { success: true; error?: undefined; data: T }
+	| { success: false; error: string; data?: undefined };
 ```
 
 
