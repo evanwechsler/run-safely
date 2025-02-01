@@ -81,17 +81,17 @@ name: z.string(),
 });
 const [error, user] = await fetchTyped('/api/user/1', userSchema);
 if (error) {
-	switch (error.item.type) {
-		case 'fetch-threw':
-			console.error('Network error:', error.item.error);
-			return;
-		case 'response-not-ok':
-			console.error('HTTP error:', error.item.response.status);
-			return;
-		case 'parse-failed':
-			console.error('Invalid response data:', error.item.error);
-			return;
-	}
+switch (error.item.type) {
+case 'fetch-threw':
+console.error('Network error:', error.item.error);
+return;
+case 'response-not-ok':
+console.error('HTTP error:', error.item.response.status);
+return;
+case 'parse-failed':
+console.error('Invalid response data:', error.item.error);
+return;
+}
 }
 
 console.log('User data:', user);
