@@ -1,11 +1,25 @@
 # Safe TypeScript Utilities
 
 [![npm version](https://badge.fury.io/js/run-safely.svg)](https://badge.fury.io/js/run-safely)
-[![Build Status](https://github.com/evanwechsler/run-safely/actions/workflows/publish.yml/badge.svg)](https://github.com/yourusername/run-safely/actions)
+[![Build Status](https://github.com/evanwechsler/run-safely/actions/workflows/publish.yml/badge.svg)](https://github.com/evanwechsler/run-safely/actions)
 
 | Statements                  | Branches                | Functions                 | Lines             |
 | --------------------------- | ----------------------- | ------------------------- | ----------------- |
 | ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Lines](https://img.shields.io/badge/lines-100%25-brightgreen.svg?style=flat&logo=vitest) |
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Features](#features)
+- [API Reference](#api-reference)
+  - [SafeResult](#saferesult)
+  - [runSafe](#runsafe)
+  - [fetchTyped](#fetchtyped)
+  - [safeFetch](#safefetch)
+  - [ServerActionResult](#serveractionresult)
+- [Error Types](#error-types)
+- [Contributing](#contributing)
+- [License](#license)
 
 A TypeScript utility package providing safe error handling patterns and typed fetch operations with Zod schema validation.
 
