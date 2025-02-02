@@ -26,13 +26,16 @@ jobs:
         run: pnpm install
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm run test:coverage
 
       - name: Run ESLint
         run: pnpm run lint
 
       - name: Type check
         run: pnpm run ts:check
+
+      - name: Make badges
+        run: pnpm run make-badges
 
       - name: Publish to NPM
         run: pnpm publish
