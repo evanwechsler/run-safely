@@ -1,6 +1,6 @@
 {
   "name": "run-safely",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Helpers to add better type safety and error handling to your code",
   "type": "module",
   "main": "src/index.ts",
@@ -44,12 +44,13 @@
     "istanbul-badges-readme": "^1.9.0",
     "prettier": "3.4.2",
     "typescript-eslint": "^8.22.0",
-    "vitest": "^3.0.4"
+    "vitest": "^3.0.4",
+    "zod": "^3.24.1"
+  },
+  "peerDependencies": {
+    "zod": "^3.24.1"
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "zod": "^3.24.1"
   }
 }

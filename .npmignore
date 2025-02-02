@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+.github/
+.vscode/
+*.test.ts
+vitest.config.*
+eslint.config.*
+prettier.config.*
+*.tsbuildinfo

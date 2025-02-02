@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      zod:
-        specifier: ^3.24.1
-        version: 3.24.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.19.0
@@ -42,6 +38,9 @@ importers:
       vitest:
         specifier: ^3.0.4
         version: 3.0.4(@types/node@22.13.0)
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
 
 packages:
 
