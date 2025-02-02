@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runSafe, FetchError, fetchTyped } from '../src/index';
+import { runSafe, FetchError, fetchTyped, FetchThrewError, ResponseNotOkError, JSONParseError, ParseFailedError, safeFetch } from '../src/index';
 import { z } from 'zod';
 
 describe('runSafe', () => {
@@ -38,40 +38,6 @@ describe('runSafe', () => {
   });
 });
 
-describe('FetchError', () => {
-  it('handles fetch-threw errors', () => {
-    const error = new Error('network error');
-    const fetchError = new FetchError({ type: 'fetch-threw', error });
-    expect(fetchError.getMessage()).toBe('network error');
-    expect(fetchError.message).toBe('network error');
-    expect(fetchError.item.type).toBe('fetch-threw');
-  });
-
-  it('handles response-not-ok errors', () => {
-    const response = new Response(null, { status: 404, statusText: 'Not Found' });
-    const fetchError = new FetchError({ type: 'response-not-ok', response });
-    expect(fetchError.getMessage()).toBe('[404] Not Found');
-    expect(fetchError.message).toBe('[404] Not Found');
-    expect(fetchError.item.type).toBe('response-not-ok');
-  });
-
-  it('handles parse-failed errors', () => {
-    const zodError = new z.ZodError([
-      {
-        code: 'invalid_type',
-        expected: 'string',
-        received: 'number',
-        path: ['name'],
-        message: 'Expected string, received number',
-      },
-    ]);
-    const fetchError = new FetchError({ type: 'parse-failed', error: zodError });
-    expect(fetchError.getMessage()).toContain('Expected string, received number');
-    expect(fetchError.message).toContain('Expected string, received number');
-    expect(fetchError.item.type).toBe('parse-failed');
-  });
-});
-
 describe('fetchTyped', () => {
   const schema = z.object({
     id: z.number(),
@@ -91,16 +57,15 @@ describe('fetchTyped', () => {
     );
 
     const result = await fetchTyped('https://api.example.com', schema);
-    expect(result).toEqual([undefined, mockResponse]);
+    expect(result).toEqual(mockResponse);
   });
 
   it('handles fetch errors', async () => {
     const error = new Error('Network error');
     global.fetch = vi.fn().mockRejectedValue(error);
 
-    const result = await fetchTyped('https://api.example.com', schema);
-    expect(result[0]).toBeInstanceOf(FetchError);
-    expect(result[0]?.item.type).toBe('fetch-threw');
+    const result = fetchTyped('https://api.example.com', schema);
+    expect(result).rejects.toThrow(FetchThrewError);
   });
 
   it('handles non-ok responses', async () => {
@@ -111,9 +76,8 @@ describe('fetchTyped', () => {
       }),
     );
 
-    const result = await fetchTyped('https://api.example.com', schema);
-    expect(result[0]).toBeInstanceOf(FetchError);
-    expect(result[0]?.item.type).toBe('response-not-ok');
+    const result = fetchTyped('https://api.example.com', schema);
+    expect(result).rejects.toThrow(ResponseNotOkError);
   });
 
   it('handles parse errors', async () => {
@@ -124,8 +88,119 @@ describe('fetchTyped', () => {
       }),
     );
 
-    const result = await fetchTyped('https://api.example.com', schema);
-    expect(result[0]).toBeInstanceOf(FetchError);
-    expect(result[0]?.item.type).toBe('parse-failed');
+    const result = fetchTyped('https://api.example.com', schema);
+    expect(result).rejects.toThrow(ParseFailedError);
+  });
+});
+
+describe('FetchThrewError', () => {
+  it('properly constructs with error message', () => {
+    const error = new FetchThrewError('network error');
+    expect(error.message).toBe('network error');
+    expect(error).toBeInstanceOf(FetchError);
+  });
+});
+
+describe('ResponseNotOkError', () => {
+  it('properly constructs with response', () => {
+    const response = new Response(null, { status: 404, statusText: 'Not Found' });
+    const error = new ResponseNotOkError(response);
+    expect(error.message).toBe('Response not ok: 404 Not Found');
+    expect(error.response).toBe(response);
+    expect(error).toBeInstanceOf(FetchError);
+  });
+});
+
+describe('JSONParseError', () => {
+  it('properly constructs with error message', () => {
+    const error = new JSONParseError('Invalid JSON');
+    expect(error.message).toBe('Invalid JSON');
+    expect(error).toBeInstanceOf(FetchError);
+  });
+});
+
+describe('ParseFailedError', () => {
+  it('properly constructs with zod error', () => {
+    const zodError = new z.ZodError([
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'number',
+        path: ['name'],
+        message: 'Expected string, received number',
+      },
+    ]);
+    const error = new ParseFailedError(zodError);
+    expect(error.message).toBe(zodError.message);
+    expect(error.zodError).toBe(zodError);
+    expect(error).toBeInstanceOf(FetchError);
+  });
+});
+
+describe('safeFetch', () => {
+  const schema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('handles successful fetch and parse', async () => {
+    const mockResponse = { id: 1, name: 'test' };
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), {
+        status: 200,
+      }),
+    );
+
+    const result = await safeFetch('https://api.example.com', schema);
+    expect(result).toEqual([undefined, mockResponse]);
+  });
+
+  it('handles fetch errors', async () => {
+    const error = new Error('Network error');
+    global.fetch = vi.fn().mockRejectedValue(error);
+
+    const result = await safeFetch('https://api.example.com', schema);
+    expect(result[0]).toBeInstanceOf(FetchThrewError);
+    expect(result[0]?.message).toBe('Network error');
+  });
+
+  it('handles non-ok responses', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(null, {
+        status: 404,
+        statusText: 'Not Found',
+      }),
+    );
+
+    const result = await safeFetch('https://api.example.com', schema);
+    expect(result[0]).toBeInstanceOf(ResponseNotOkError);
+    expect(result[0]?.message).toBe('Response not ok: 404 Not Found');
+  });
+
+  it('handles JSON parse errors', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response('invalid json', {
+        status: 200,
+      }),
+    );
+
+    const result = await safeFetch('https://api.example.com', schema);
+    expect(result[0]).toBeInstanceOf(JSONParseError);
+  });
+
+  it('handles schema validation errors', async () => {
+    const invalidResponse = { id: 'not-a-number', name: 123 };
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(invalidResponse), {
+        status: 200,
+      }),
+    );
+
+    const result = await safeFetch('https://api.example.com', schema);
+    expect(result[0]).toBeInstanceOf(ParseFailedError);
   });
 });
