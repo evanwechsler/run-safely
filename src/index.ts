@@ -12,19 +12,8 @@ export type SafeResult<T, E extends Error = Error> = [E] | [undefined, T];
  * Safely executes promises or functions, returning a SafeResult.
  * Catches any errors and returns them in a structured way.
  * @template T The return value type
- * @param promise A Promise to be executed safely
+ * @param input A Promise or function to be executed safely
  */
-export function runSafe<T>(promise: Promise<T>): Promise<SafeResult<T>>;
-/**
- * @template T The return value type
- * @param fn A synchronous function to be executed safely
- */
-export function runSafe<T>(fn: () => T): Promise<SafeResult<T>>;
-/**
- * @template T The return value type
- * @param fn An async function to be executed safely
- */
-export function runSafe<T>(fn: () => Promise<T>): Promise<SafeResult<T>>;
 export async function runSafe<T>(
   input: Promise<T> | (() => T) | (() => Promise<T>),
 ): Promise<SafeResult<T>> {
@@ -42,18 +31,12 @@ export async function runSafe<T>(
  * Base error class for fetch-related errors
  */
 export class FetchError extends Error {
-  constructor(error: string) {
-    super(error);
-  }
 }
 
 /**
  * Error thrown when the fetch operation itself fails (e.g., network error)
  */
 export class FetchThrewError extends FetchError {
-  constructor(error: string) {
-    super(error);
-  }
 }
 
 /**
@@ -71,9 +54,6 @@ export class ResponseNotOkError extends FetchError {
  * Error thrown when JSON parsing of the response fails
  */
 export class JSONParseError extends FetchError {
-  constructor(error: string) {
-    super(error);
-  }
 }
 
 /**
