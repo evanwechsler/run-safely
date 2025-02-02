@@ -1,5 +1,14 @@
 # Safe TypeScript Utilities
 
+# Safe TypeScript Utilities
+
+[![npm version](https://badge.fury.io/js/run-safely.svg)](https://badge.fury.io/js/run-safely)
+[![Build Status](https://github.com/evanwechsler/run-safely/actions/workflows/publish.yml/badge.svg)](https://github.com/yourusername/run-safely/actions)
+
+A TypeScript utility package providing safe error handling patterns and typed fetch operations with Zod schema validation.
+
+// ... existing code ...
+
 A TypeScript utility package providing safe error handling patterns and typed fetch operations with Zod schema validation.
 
 ## Installation
@@ -62,45 +71,75 @@ if (error) {
 
 ### fetchTyped
 
-A type-safe fetch utility that validates response data against a Zod schema.
+A type-safe fetch utility that validates response data against a Zod schema. This version throws errors that you can catch and handle.
 
 ```typescript
 function fetchTyped<T>(
 	url: string,
 	schema: z.ZodSchema<T>,
 	options?: RequestInit
-): Promise<SafeResult<T, FetchError<T>>>;
+): Promise<T>;
 ```
 
-
-Example usage:
+Example usage with try/catch:
 
 ```typescript
 import { z } from 'zod';
+import { fetchTyped, FetchThrewError, ResponseNotOkError, JSONParseError, ParseFailedError } from 'run-safely';
 
 const userSchema = z.object({
 	id: z.number(),
 	name: z.string(),
 });
 
-const [error, user] = await fetchTyped('/api/user/1', userSchema);
-if (error) {
-	switch (error.item.type) {
-		case 'fetch-threw':
-			console.error('Network error:', error.item.error);
-			return;
-		case 'response-not-ok':
-			console.error('HTTP error:', error.item.response.status);
-			return;
-		case 'parse-failed':
-			console.error('Invalid response data:', error.item.error);
-			return;
+try {
+	const user = await fetchTyped('/api/user/1', userSchema);
+	console.log('User data:', user);
+} catch (error) {
+	if (error instanceof FetchThrewError) {
+		console.error('Network error:', error.message);
+	} else if (error instanceof ResponseNotOkError) {
+		console.error('HTTP error:', error.response.status);
+	} else if (error instanceof JSONParseError) {
+		console.error('JSON parsing failed:', error.message);
+	} else if (error instanceof ParseFailedError) {
+		console.error('Invalid response data:', error.zodError);
 	}
+}
+```
+
+### safeFetch
+
+A safer version of `fetchTyped` that returns a `SafeResult` instead of throwing errors.
+
+```typescript
+function safeFetch<T>(
+	url: string,
+	schema: z.ZodSchema<T>,
+	options?: RequestInit
+): Promise<SafeResult<T, FetchError>>;
+```
+
+Example usage:
+
+```typescript
+import { z } from 'zod';
+import { safeFetch } from 'run-safely';
+
+const userSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+});
+
+const [error, user] = await safeFetch('/api/user/1', userSchema);
+
+if (error) {
+	console.error('Operation failed:', error.message);
+	return;
 }
 
 console.log('User data:', user);
 ```
-
 
 ### ServerActionResult
 
@@ -108,8 +147,8 @@ A type for representing the result of server actions with proper typing for succ
 
 ```typescript
 type ServerActionResult<T> =
-	| { success: true; error?: undefined; data: T }
-	| { success: false; error: string; data?: undefined };
+	| { error?: undefined; data: T }
+	| { error: string; data?: undefined };
 ```
 
 
@@ -120,6 +159,16 @@ The package includes a `FetchError` class that provides structured error handlin
 - `fetch-threw`: Network or other fetch-related errors
 - `response-not-ok`: Non-200 HTTP responses
 - `parse-failed`: Response data validation failures
+
+## Error Types
+
+The package includes several error classes for structured error handling:
+
+- `FetchError`: Base error class for all fetch-related errors
+- `FetchThrewError`: Network or other fetch-related errors
+- `ResponseNotOkError`: Non-200 HTTP responses (includes the Response object)
+- `JSONParseError`: JSON parsing failures
+- `ParseFailedError`: Zod schema validation failures (includes the ZodError)
 
 ## Contributing
 
