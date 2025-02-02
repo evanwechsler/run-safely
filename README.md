@@ -1,5 +1,14 @@
 # Safe TypeScript Utilities
 
+# Safe TypeScript Utilities
+
+[![npm version](https://badge.fury.io/js/run-safely.svg)](https://badge.fury.io/js/run-safely)
+[![Build Status](https://github.com/evanwechsler/run-safely/actions/workflows/publish.yml/badge.svg)](https://github.com/yourusername/run-safely/actions)
+
+A TypeScript utility package providing safe error handling patterns and typed fetch operations with Zod schema validation.
+
+// ... existing code ...
+
 A TypeScript utility package providing safe error handling patterns and typed fetch operations with Zod schema validation.
 
 ## Installation
