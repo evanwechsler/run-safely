@@ -1,6 +1,6 @@
 {
   "name": "run-safely",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Helpers to add better type safety and error handling to your code",
   "type": "module",
   "main": "src/index.ts",
