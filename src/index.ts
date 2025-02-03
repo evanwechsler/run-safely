@@ -135,5 +135,5 @@ export async function safeFetch<T>(
  * @template T The success data type
  */
 export type ServerActionResult<T> =
-  | { error?: undefined; data: T }
-  | { error: string; data?: undefined };
+  | { success: true; error?: undefined; data: T }
+  | { success: false; error: string; data?: undefined };

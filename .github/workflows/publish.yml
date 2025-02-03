@@ -34,6 +34,9 @@ jobs:
       - name: Type check
         run: pnpm run ts:check
 
+      - name: Build
+        run: pnpm run build
+
       - name: Make badges
         run: pnpm run make-badges
 

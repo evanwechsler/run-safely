@@ -160,8 +160,8 @@ This is based on the suggestions from the [Next docs]([text](https://nextjs.org/
 
 ```typescript
 type ServerActionResult<T> =
-	| { error?: undefined; data: T }
-	| { error: string; data?: undefined };
+	| { success: true; error?: undefined; data: T }
+	| { success: false; error: string; data?: undefined };
 ```
 
 
