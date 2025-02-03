@@ -22,8 +22,11 @@ export async function runSafe<T>(
       undefined,
       await (input instanceof Promise ? input : input()),
     ];
-  } catch (error) {
-    return [error as Error];
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return [error];
+    }
+    return [new Error(String(error))];
   }
 }
 
