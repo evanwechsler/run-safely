@@ -1,6 +1,6 @@
 {
   "name": "run-safely",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Helpers to add better type safety and error handling to your code",
   "type": "module",
   "main": "dist/index.js",
