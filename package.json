@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "build:js": "swc src -d dist --config-file ./.swcrc",
+    "build:js": "cd src && swc . -d ../dist --config-file ../.swcrc",
     "build:types": "tsc -p tsconfig.build.json",
     "build": "pnpm run build:js && pnpm run build:types",
     "ts:check": "tsc --noEmit",

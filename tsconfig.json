@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "./dist",
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -22,7 +20,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "preserve",
-    "incremental": true,
 
     /* Path Aliases */
     "baseUrl": ".",
