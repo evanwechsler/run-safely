@@ -204,3 +204,64 @@ describe('safeFetch', () => {
     expect(result[0]).toBeInstanceOf(ParseFailedError);
   });
 });
+
+describe('runSafe additional cases', () => {
+  it('handles non-Error thrown exceptions by wrapping them in an Error', async () => {
+    const fn = () => {
+      throw "non-error thrown";
+    };
+    const [error, result] = await runSafe(fn);
+    expect(error).toBeInstanceOf(Error);
+    expect(error?.message).toBe("non-error thrown");
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('fetchTyped additional tests', () => {
+  const schema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('forwards options to fetch', async () => {
+    const mockResponse = { id: 2, name: 'Option Test' };
+    const dummyOptions: RequestInit = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    };
+
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), {
+        status: 200,
+      }),
+    );
+
+    await fetchTyped('https://api.example.com/test', schema, dummyOptions);
+    expect(global.fetch).toHaveBeenCalledWith('https://api.example.com/test', dummyOptions);
+  });
+});
+
+describe('safeFetch with non-Error fetch rejection', () => {
+  const schema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('wraps non-Error fetch rejections properly', async () => {
+    // Simulate a rejection that is not an Error (e.g. a string)
+    global.fetch = vi.fn().mockRejectedValue("string error");
+
+    const [error, data] = await safeFetch('https://api.example.com/error', schema);
+    expect(error).toBeInstanceOf(FetchThrewError);
+    expect(error?.message).toBe("string error");
+    expect(data).toBeUndefined();
+  });
+});

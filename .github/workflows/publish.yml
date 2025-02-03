@@ -40,6 +40,16 @@ jobs:
       - name: Make badges
         run: pnpm run make-badges
 
+      - name: Commit updated README
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config --global user.email "github-actions[bot]@github.com"
+            git config --global user.name "github-actions[bot]"
+            git add README.md
+            git commit -m "Update README with badges"
+            git push
+          fi
+
       - name: Publish to NPM
         run: pnpm publish
         env:
