@@ -1,6 +1,6 @@
 {
   "name": "run-safely",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Helpers to add better type safety and error handling to your code",
   "type": "module",
   "homepage": "https://github.com/evanwechsler/run-safely",

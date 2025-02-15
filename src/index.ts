@@ -18,7 +18,7 @@ export async function runSafe<T>(
   input: Promise<T> | (() => T) | (() => Promise<T>),
 ): Promise<SafeResult<T>> {
   try {
-    return [undefined, await (input instanceof Promise ? input : input())];
+    return [undefined, await (input instanceof Function ? input() : input)];
   } catch (error: unknown) {
     if (error instanceof Error) {
       return [error];
