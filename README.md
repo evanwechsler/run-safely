@@ -3,8 +3,8 @@
 [![npm version](https://badge.fury.io/js/run-safely.svg)](https://badge.fury.io/js/run-safely)
 [![Build Status](https://github.com/evanwechsler/run-safely/actions/workflows/publish.yml/badge.svg)](https://github.com/evanwechsler/run-safely/actions)
 
-| Statements                  | Branches                | Functions                 | Lines             |
-| --------------------------- | ----------------------- | ------------------------- | ----------------- |
+| Statements                                                                                           | Branches                                                                                         | Functions                                                                                          | Lines                                                                                      |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat&logo=vitest) | ![Lines](https://img.shields.io/badge/lines-100%25-brightgreen.svg?style=flat&logo=vitest) |
 
 ## Table of Contents
@@ -28,15 +28,18 @@ A TypeScript utility package providing safe error handling patterns and typed fe
 ```bash
 pnpm add run-safely
 ```
+
 or
+
 ```bash
 npm install run-safely
 ```
+
 or
+
 ```bash
 yarn add run-safely
 ```
-
 
 ## Features
 
@@ -54,7 +57,6 @@ A type representing the result of an operation that might fail, providing either
 ```typescript
 type SafeResult<T, E extends Error = Error> = [E] | [undefined, T];
 ```
-
 
 ### runSafe
 
@@ -75,9 +77,9 @@ const [error, data] = await runSafe(fetchSomeData());
 const [error, result] = await runSafe(() => someOperation());
 
 if (error) {
-	console.error('Operation failed:', error);
+  console.error("Operation failed:", error);
 } else {
-  console.log('Success:', result);
+  console.log("Success:", result);
 }
 ```
 
@@ -87,36 +89,42 @@ A type-safe fetch utility that validates response data against a Zod schema. Thi
 
 ```typescript
 function fetchTyped<T>(
-	url: string,
-	schema: z.ZodSchema<T>,
-	options?: RequestInit
+  url: string,
+  schema: z.ZodSchema<T>,
+  options?: RequestInit,
 ): Promise<T>;
 ```
 
 Example usage with try/catch:
 
 ```typescript
-import { z } from 'zod';
-import { fetchTyped, FetchThrewError, ResponseNotOkError, JSONParseError, ParseFailedError } from 'run-safely';
+import { z } from "zod";
+import {
+  fetchTyped,
+  FetchThrewError,
+  ResponseNotOkError,
+  JSONParseError,
+  ParseFailedError,
+} from "run-safely";
 
 const userSchema = z.object({
-	id: z.number(),
-	name: z.string(),
+  id: z.number(),
+  name: z.string(),
 });
 
 try {
-	const user = await fetchTyped('/api/user/1', userSchema);
-	console.log('User data:', user);
+  const user = await fetchTyped("/api/user/1", userSchema);
+  console.log("User data:", user);
 } catch (error) {
-	if (error instanceof FetchThrewError) {
-		console.error('Network error:', error.message);
-	} else if (error instanceof ResponseNotOkError) {
-		console.error('HTTP error:', error.response.status);
-	} else if (error instanceof JSONParseError) {
-		console.error('JSON parsing failed:', error.message);
-	} else if (error instanceof ParseFailedError) {
-		console.error('Invalid response data:', error.zodError);
-	}
+  if (error instanceof FetchThrewError) {
+    console.error("Network error:", error.message);
+  } else if (error instanceof ResponseNotOkError) {
+    console.error("HTTP error:", error.response.status);
+  } else if (error instanceof JSONParseError) {
+    console.error("JSON parsing failed:", error.message);
+  } else if (error instanceof ParseFailedError) {
+    console.error("Invalid response data:", error.zodError);
+  }
 }
 ```
 
@@ -126,44 +134,50 @@ A safer version of `fetchTyped` that returns a `SafeResult` instead of throwing 
 
 ```typescript
 function safeFetch<T>(
-	url: string,
-	schema: z.ZodSchema<T>,
-	options?: RequestInit
+  url: string,
+  schema: z.ZodSchema<T>,
+  options?: RequestInit,
 ): Promise<SafeResult<T, FetchError>>;
 ```
 
 Example usage:
 
 ```typescript
-import { z } from 'zod';
-import { safeFetch } from 'run-safely';
+import { z } from "zod";
+import { safeFetch } from "run-safely";
 
 const userSchema = z.object({
-	id: z.number(),
-	name: z.string(),
+  id: z.number(),
+  name: z.string(),
 });
 
-const [error, user] = await safeFetch('/api/user/1', userSchema);
+const [error, user] = await safeFetch("/api/user/1", userSchema);
 
 if (error) {
-	console.error('Operation failed:', error.message);
-	return;
+  switch (error.type) {
+    case "FetchThrewError":
+      console.error("Network error:", error.message);
+      break;
+    case "ResponseNotOkError":
+      console.error("HTTP error:", error.response.status);
+      break;
+  }
+  return;
 }
 
-console.log('User data:', user);
+console.log("User data:", user);
 ```
 
 ### ServerActionResult
 
 A type for representing the result of server actions with proper typing for success and error states.
-This is based on the suggestions from the [Next docs]([text](https://nextjs.org/docs/app/building-your-application/routing/error-handling#handling-expected-errors-from-server-actions))
+This is based on the suggestions from the [Next docs](<[text](https://nextjs.org/docs/app/building-your-application/routing/error-handling#handling-expected-errors-from-server-actions)>)
 
 ```typescript
 type ServerActionResult<T> =
-	| { success: true; error?: undefined; data: T }
-	| { success: false; error: string; data?: undefined };
+  | { success: true; error?: undefined; data: T }
+  | { success: false; error: string; data?: undefined };
 ```
-
 
 ## Error Types
 
@@ -185,6 +199,7 @@ We welcome contributions! Here's how you can help:
 4. Open a Pull Request
 
 Please make sure to:
+
 - Update documentation for any new features
 - Add tests for new functionality using vitest
 - Follow the existing code style

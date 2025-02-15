@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * A type representing the result of an operation that might fail.
@@ -18,10 +18,7 @@ export async function runSafe<T>(
   input: Promise<T> | (() => T) | (() => Promise<T>),
 ): Promise<SafeResult<T>> {
   try {
-    return [
-      undefined,
-      await (input instanceof Promise ? input : input()),
-    ];
+    return [undefined, await (input instanceof Promise ? input : input())];
   } catch (error: unknown) {
     if (error instanceof Error) {
       return [error];
@@ -30,22 +27,31 @@ export async function runSafe<T>(
   }
 }
 
+type FetchErrorType =
+  | "FetchThrewError"
+  | "ResponseNotOkError"
+  | "JSONParseError"
+  | "ParseFailedError";
+
 /**
  * Base error class for fetch-related errors
  */
-export class FetchError extends Error {
+export abstract class FetchError extends Error {
+  abstract readonly type: FetchErrorType;
 }
 
 /**
  * Error thrown when the fetch operation itself fails (e.g., network error)
  */
 export class FetchThrewError extends FetchError {
+  readonly type = "FetchThrewError";
 }
 
 /**
  * Error thrown when the fetch response is not OK (status not in 200-299 range)
  */
 export class ResponseNotOkError extends FetchError {
+  readonly type = "ResponseNotOkError";
   response: Response;
   constructor(response: Response) {
     super(`Response not ok: ${response.status} ${response.statusText}`);
@@ -57,6 +63,7 @@ export class ResponseNotOkError extends FetchError {
  * Error thrown when JSON parsing of the response fails
  */
 export class JSONParseError extends FetchError {
+  readonly type = "JSONParseError";
 }
 
 /**
@@ -64,6 +71,7 @@ export class JSONParseError extends FetchError {
  * @template T The expected data type
  */
 export class ParseFailedError<T> extends FetchError {
+  readonly type = "ParseFailedError";
   zodError: z.ZodError<T>;
   constructor(error: z.ZodError<T>) {
     super(error.message);
@@ -126,7 +134,10 @@ export async function safeFetch<T>(
   schema: z.ZodSchema<T>,
   options?: RequestInit,
 ): Promise<SafeResult<z.infer<typeof schema>, FetchError>> {
-  return await runSafe(fetchTyped(url, schema, options));
+  return (await runSafe(fetchTyped(url, schema, options))) as SafeResult<
+    z.infer<typeof schema>,
+    FetchError
+  >;
 }
 
 /**

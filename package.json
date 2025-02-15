@@ -1,8 +1,13 @@
 {
   "name": "run-safely",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Helpers to add better type safety and error handling to your code",
   "type": "module",
+  "homepage": "https://github.com/evanwechsler/run-safely",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evanwechsler/run-safely.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
